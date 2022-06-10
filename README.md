@@ -24,5 +24,5 @@ cp env.example my-env.txt
 # Now fill in the my-env.txt with proper values
 docker build . -t flexweb-scraper
 mkdir output
-docker run -t --env-file my-env.txt -v $(pwd)/output:/app/output
+docker run -t --env-file my-env.txt -v $(pwd)/output:/app/output flexweb-scraper
 ```
