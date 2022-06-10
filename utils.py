@@ -27,12 +27,12 @@ class KindPortaalFetcher():
         self._session_id = session_id
         self._portal_url = portal_url
         self._start_date = start_date
+        user_agent_rotator = UserAgent()
+        self._user_agent = user_agent_rotator.get_random_user_agent()
 
     def _get_headers(self):
-        user_agent_rotator = UserAgent()
-        user_agent = user_agent_rotator.get_random_user_agent()
         return {
-            'User-Agent': user_agent,
+            'User-Agent': self._user_agent,
             'Accept': '*/*',
             'Accept-Language': 'nl,en-US;q=0.7,en;q=0.3',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -96,7 +96,7 @@ class KindPortaalFetcher():
                 data=data
             ).json()
             photos = photos + response['FOTOS']
-            print(f"Found {len(photos)} in {year}-{month}")
+            print(f"Found {len(photos)} photos  ({year}-{month})")
         return photos
 
     @staticmethod
