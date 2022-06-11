@@ -3,7 +3,6 @@ from datetime import date, datetime
 
 import piexif
 import requests
-from bs4 import BeautifulSoup
 from dateutil.rrule import MONTHLY, rrule
 from random_user_agent.user_agent import UserAgent
 
@@ -72,13 +71,19 @@ class KindPortaalFetcher():
         ).content
         with open(filename, 'wb') as handler:
             handler.write(img_data)
+        self.update_exif_date(filename, creation_date)
 
+    @staticmethod
+    def update_exif_date(filename, creation_date):
         exif_dict = piexif.load(filename)
+
         piexif.remove(filename)
-        exif_dict['0th'][piexif.ImageIFD.DateTime] = creation_date
-        exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] = creation_date
-        exif_dict['Exif'][piexif.ExifIFD.DateTimeDigitized] = creation_date
-        exif_bytes = piexif.dump(filename)
+
+        new_exif_date = creation_date.strftime("%Y:%m:%d %H:%M:%S")
+        exif_dict['0th'][piexif.ImageIFD.DateTime] = new_exif_date
+        exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] = new_exif_date
+        exif_dict['Exif'][piexif.ExifIFD.DateTimeDigitized] = new_exif_date
+        exif_bytes = piexif.dump(exif_dict)
         piexif.insert(exif_bytes, filename)
 
     def fetch_image_id_list(self):
@@ -98,20 +103,3 @@ class KindPortaalFetcher():
             photos = photos + response['FOTOS']
             print(f"Found {len(photos)} photos  ({year}-{month})")
         return photos
-
-    @staticmethod
-    def _parse_tijdlijn_html(data: str):
-        result = {}
-        soup = BeautifulSoup(data, features='lxml')
-        for item in soup.find_all('div', class_='tijdlijn-item'):
-            datum = item.find('div', class_='tijd-lijn-tijddatum')
-            if datum is None:
-                datum = "Onbekend"
-            else:
-                datum = datum.string
-            for tijdlijn_foto in item.find_all('div', class_='tijd-lijn-foto'):
-                photos = []
-                for foto in tijdlijn_foto.find_all('a'):
-                    photos.append(foto['href'])
-                result[datum] = photos
-        return result
