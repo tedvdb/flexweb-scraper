@@ -16,7 +16,7 @@ Fetched post 40-60 of 57
 virtualenv .env
 source .env/bin/activate
 pip install -r requirements.txt
-SESSID = 'hexstring here' BASE_URL='https://organizationname.flexkids.nl' KIND_ID=number python fetch.py
+SESSID = 'hexstring here' BASE_URL='https://organizationname.flexkids.nl' START_MONTH=2020-01 python fetch.py
 ```
 ### Using Docker
 ```
@@ -25,4 +25,11 @@ cp env.example my-env.txt
 docker build . -t flexweb-scraper
 mkdir output
 docker run -t --env-file my-env.txt -v $(pwd)/output:/app/output flexweb-scraper
+```
+
+# Push newer image to docker hub
+```
+docker build . -t flexweb-scraper:latest
+docker tag flexweb-scraper:latest tedvdb/flexweb-scraper:latest
+docker push tedvdb/flexweb-scraper:latest
 ```
